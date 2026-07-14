@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Airbnb Pricing Calculator</title>
+
+<style>
+body{
+    font-family:Arial,Helvetica,sans-serif;
+    background:#f5f5f5;
+    margin:40px;
+}
+.container{
+    max-width:900px;
+    margin:auto;
+    background:white;
+    padding:25px;
+    border-radius:12px;
+    box-shadow:0 5px 15px rgba(0,0,0,.15);
+}
+h1{
+    text-align:center;
+}
+.controls{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:15px;
+    margin-bottom:20px;
+}
+label{
+    display:block;
+    font-size:14px;
+    margin-bottom:4px;
+}
+input{
+    width:100%;
+    padding:8px;
+    font-size:16px;
+}
+button{
+    margin-top:20px;
+    padding:12px 18px;
+    font-size:16px;
+    cursor:pointer;
+}
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
+}
+th,td{
+    border:1px solid #ddd;
+    padding:10px;
+    text-align:right;
+}
+th{
+    background:#222;
+    color:white;
+}
+tr:nth-child(even){
+    background:#f3f3f3;
+}
+.footer{
+    margin-top:15px;
+    text-align:center;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Airbnb Pricing Calculator</h1>
+
+<div class="controls">
+
+<div>
+<label>Starting Price</label>
+<input id="start" type="number" value="1555">
+</div>
+
+<div>
+<label>Ending Price</label>
+<input id="end" type="number" value="5555">
+</div>
+
+<div>
+<label>Increment</label>
+<input id="step" type="number" value="111">
+</div>
+
+<div>
+<label>Airbnb Fee (%)</label>
+<input id="fee" type="number" value="18">
+</div>
+
+</div>
+
+<button onclick="generate()">Generate Table</button>
+
+<table id="results">
+<thead>
+<tr>
+<th>Posted Price</th>
+<th>Airbnb Fee</th>
+<th>Net Payout</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+
+<div class="footer">
+Rows Generated: <span id="count">0</span>
+</div>
+
+</div>
+
+<script>
+
+function money(v){
+    return "₱" + v.toLocaleString(undefined,{
+        minimumFractionDigits:2,
+        maximumFractionDigits:2
+    });
+}
+
+function generate(){
+
+    const start = Number(document.getElementById("start").value);
+    const end = Number(document.getElementById("end").value);
+    const step = Number(document.getElementById("step").value);
+    const feePercent = Number(document.getElementById("fee").value)/100;
+
+    const tbody = document.querySelector("#results tbody");
+    tbody.innerHTML="";
+
+    let rows=0;
+    let lastPrice=null;
+
+    for(let price=start; price<=end; price+=step){
+
+        const fee = price*feePercent;
+        const payout = price-fee;
+
+        tbody.innerHTML += `
+        <tr>
+            <td>${money(price)}</td>
+            <td>${money(fee)}</td>
+            <td>${money(payout)}</td>
+        </tr>`;
+
+        rows++;
+        lastPrice=price;
+    }
+
+    // Always include final value if not reached exactly
+    if(lastPrice!==end){
+
+        const fee=end*feePercent;
+        const payout=end-fee;
+
+        tbody.innerHTML += `
+        <tr>
+            <td>${money(end)}</td>
+            <td>${money(fee)}</td>
+            <td>${money(payout)}</td>
+        </tr>`;
+
+        rows++;
+    }
+
+    document.getElementById("count").textContent=rows;
+
+}
+
+generate();
+
+</script>
+
+</body>
+</html>
