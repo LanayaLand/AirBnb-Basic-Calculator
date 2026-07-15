@@ -8,64 +8,57 @@
 <style>
 body{
     font-family:Arial,Helvetica,sans-serif;
-    background:#f5f5f5;
+    background:#f4f4f4;
     margin:40px;
 }
+
 .container{
     max-width:900px;
     margin:auto;
     background:white;
     padding:25px;
     border-radius:12px;
-    box-shadow:0 5px 15px rgba(0,0,0,.15);
+    box-shadow:0 5px 20px rgba(0,0,0,.15);
 }
+
 h1{
     text-align:center;
+    margin-bottom:25px;
 }
-.controls{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-    gap:15px;
-    margin-bottom:20px;
-}
-label{
-    display:block;
-    font-size:14px;
-    margin-bottom:4px;
-}
-input{
-    width:100%;
-    padding:8px;
-    font-size:16px;
-}
+
 button{
-    margin-top:20px;
-    padding:12px 18px;
+    padding:12px 25px;
     font-size:16px;
     cursor:pointer;
+    margin-bottom:20px;
 }
+
 table{
     width:100%;
     border-collapse:collapse;
-    margin-top:20px;
 }
+
 th,td{
     border:1px solid #ddd;
     padding:10px;
     text-align:right;
 }
+
 th{
     background:#222;
     color:white;
 }
+
 tr:nth-child(even){
-    background:#f3f3f3;
+    background:#f8f8f8;
 }
-.footer{
-    margin-top:15px;
-    text-align:center;
+
+tfoot td{
+    font-weight:bold;
+    background:#efefef;
 }
 </style>
+
 </head>
 
 <body>
@@ -74,108 +67,82 @@ tr:nth-child(even){
 
 <h1>Airbnb Pricing Calculator</h1>
 
-<div class="controls">
+<p>
+Sequence:
+<strong>1555 → 1666 → 1777 → ... → 5555</strong><br>
+Airbnb Host Fee: <strong>18%</strong>
+</p>
 
-<div>
-<label>Starting Price</label>
-<input id="start" type="number" value="1555">
-</div>
+<button onclick="generateTable()">Generate Pricing Table</button>
 
-<div>
-<label>Ending Price</label>
-<input id="end" type="number" value="5555">
-</div>
+<table id="pricingTable">
 
-<div>
-<label>Increment</label>
-<input id="step" type="number" value="111">
-</div>
-
-<div>
-<label>Airbnb Fee (%)</label>
-<input id="fee" type="number" value="18">
-</div>
-
-</div>
-
-<button onclick="generate()">Generate Table</button>
-
-<table id="results">
 <thead>
 <tr>
 <th>Posted Price</th>
-<th>Airbnb Fee</th>
+<th>Airbnb Fee (18%)</th>
 <th>Net Payout</th>
 </tr>
 </thead>
-<tbody></tbody>
-</table>
 
-<div class="footer">
-Rows Generated: <span id="count">0</span>
-</div>
+<tbody></tbody>
+
+</table>
 
 </div>
 
 <script>
 
-function money(v){
-    return "₱" + v.toLocaleString(undefined,{
+const START = 1555;
+const END = 5555;
+const STEP = 111;
+const FEE = 0.18;
+
+function peso(value){
+    return "₱" + value.toLocaleString(undefined,{
         minimumFractionDigits:2,
         maximumFractionDigits:2
     });
 }
 
-function generate(){
+function addRow(tbody, price){
 
-    const start = Number(document.getElementById("start").value);
-    const end = Number(document.getElementById("end").value);
-    const step = Number(document.getElementById("step").value);
-    const feePercent = Number(document.getElementById("fee").value)/100;
+    const fee = price * FEE;
+    const payout = price - fee;
 
-    const tbody = document.querySelector("#results tbody");
+    tbody.innerHTML += `
+    <tr>
+        <td>${peso(price)}</td>
+        <td>${peso(fee)}</td>
+        <td>${peso(payout)}</td>
+    </tr>
+    `;
+}
+
+function generateTable(){
+
+    const tbody = document.querySelector("#pricingTable tbody");
     tbody.innerHTML="";
 
-    let rows=0;
-    let lastPrice=null;
+    let lastPrice = START;
 
-    for(let price=start; price<=end; price+=step){
+    for(let price=START; price<=END; price+=STEP){
 
-        const fee = price*feePercent;
-        const payout = price-fee;
+        addRow(tbody, price);
+        lastPrice = price;
 
-        tbody.innerHTML += `
-        <tr>
-            <td>${money(price)}</td>
-            <td>${money(fee)}</td>
-            <td>${money(payout)}</td>
-        </tr>`;
-
-        rows++;
-        lastPrice=price;
     }
 
-    // Always include final value if not reached exactly
-    if(lastPrice!==end){
+    // Force 5555 as final row
+    if(lastPrice !== END){
 
-        const fee=end*feePercent;
-        const payout=end-fee;
+        addRow(tbody, END);
 
-        tbody.innerHTML += `
-        <tr>
-            <td>${money(end)}</td>
-            <td>${money(fee)}</td>
-            <td>${money(payout)}</td>
-        </tr>`;
-
-        rows++;
     }
-
-    document.getElementById("count").textContent=rows;
 
 }
 
-generate();
+generateTable();
 
 </script>
 
