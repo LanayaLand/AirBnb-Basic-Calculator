@@ -1,1 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Airbnb Pricing Calculator</title>
 
+<style>
+body{
+    font-family:Arial,sans-serif;
+    background:#f5f5f5;
+    margin:40px;
+}
+
+.container{
+    max-width:900px;
+    margin:auto;
+    background:white;
+    padding:25px;
+    border-radius:10px;
+    box-shadow:0 5px 15px rgba(0,0,0,.15);
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th,td{
+    border:1px solid #ddd;
+    padding:10px;
+    text-align:right;
+}
+
+th{
+    background:#222;
+    color:white;
+}
+
+tr:nth-child(even){
+    background:#f8f8f8;
+}
+
+button{
+    padding:12px 24px;
+    font-size:16px;
+    margin-bottom:20px;
+    cursor:pointer;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+<h2>Airbnb Pricing Calculator</h2>
+
+<button onclick="generate()">Generate Pricing</button>
+
+<table>
+
+<thead>
+<tr>
+<th>Posted Price</th>
+<th>18% Fee</th>
+<th>Net Payout</th>
+</tr>
+</thead>
+
+<tbody id="rows"></tbody>
+
+</table>
+
+</div>
+
+<script>
+
+const FEE = 0.18;
+
+function peso(v){
+    return "₱"+v.toLocaleString(undefined,{
+        minimumFractionDigits:2,
+        maximumFractionDigits:2
+    });
+}
+
+// Generates:
+// 1555,1666,1777...1999,
+// 2111,2222...2999,
+// ...
+// 5555
+
+function buildSequence(){
+
+    const list=[];
+
+    for(let thousand=1; thousand<=5; thousand++){
+
+        let startDigit = (thousand===1) ? 5 : 1;
+
+        for(let digit=startDigit; digit<=9; digit++){
+
+            const value =
+                thousand*1000 +
+                digit*100 +
+                digit*10 +
+                digit;
+
+            if(value<=5555)
+                list.push(value);
+
+        }
+
+    }
+
+    return list;
+
+}
+
+function generate(){
+
+    const tbody=document.getElementById("rows");
+
+    tbody.innerHTML="";
+
+    const prices=buildSequence();
+
+    prices.forEach(price=>{
+
+        const fee=price*FEE;
+        const payout=price-fee;
+
+        tbody.innerHTML+=`
+        <tr>
+            <td>${peso(price)}</td>
+            <td>${peso(fee)}</td>
+            <td>${peso(payout)}</td>
+        </tr>
+        `;
+
+    });
+
+}
+
+generate();
+
+</script>
+
+</body>
+</html>
