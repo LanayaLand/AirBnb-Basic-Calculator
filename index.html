@@ -7,8 +7,8 @@
 
 <style>
 body{
-    font-family:Arial,Helvetica,sans-serif;
-    background:#f4f4f4;
+    font-family:Arial,sans-serif;
+    background:#f5f5f5;
     margin:40px;
 }
 
@@ -17,20 +17,8 @@ body{
     margin:auto;
     background:white;
     padding:25px;
-    border-radius:12px;
-    box-shadow:0 5px 20px rgba(0,0,0,.15);
-}
-
-h1{
-    text-align:center;
-    margin-bottom:25px;
-}
-
-button{
-    padding:12px 25px;
-    font-size:16px;
-    cursor:pointer;
-    margin-bottom:20px;
+    border-radius:10px;
+    box-shadow:0 5px 15px rgba(0,0,0,.15);
 }
 
 table{
@@ -53,39 +41,34 @@ tr:nth-child(even){
     background:#f8f8f8;
 }
 
-tfoot td{
-    font-weight:bold;
-    background:#efefef;
+button{
+    padding:12px 24px;
+    font-size:16px;
+    margin-bottom:20px;
+    cursor:pointer;
 }
 </style>
 
 </head>
-
 <body>
 
 <div class="container">
 
-<h1>Airbnb Pricing Calculator</h1>
+<h2>Airbnb Pricing Calculator</h2>
 
-<p>
-Sequence:
-<strong>1555 → 1666 → 1777 → ... → 5555</strong><br>
-Airbnb Host Fee: <strong>18%</strong>
-</p>
+<button onclick="generate()">Generate Pricing</button>
 
-<button onclick="generateTable()">Generate Pricing Table</button>
-
-<table id="pricingTable">
+<table>
 
 <thead>
 <tr>
 <th>Posted Price</th>
-<th>Airbnb Fee (18%)</th>
+<th>18% Fee</th>
 <th>Net Payout</th>
 </tr>
 </thead>
 
-<tbody></tbody>
+<tbody id="rows"></tbody>
 
 </table>
 
@@ -93,56 +76,74 @@ Airbnb Host Fee: <strong>18%</strong>
 
 <script>
 
-const START = 1555;
-const END = 5555;
-const STEP = 111;
 const FEE = 0.18;
 
-function peso(value){
-    return "₱" + value.toLocaleString(undefined,{
+function peso(v){
+    return "₱"+v.toLocaleString(undefined,{
         minimumFractionDigits:2,
         maximumFractionDigits:2
     });
 }
 
-function addRow(tbody, price){
+// Generates:
+// 1555,1666,1777...1999,
+// 2111,2222...2999,
+// ...
+// 5555
 
-    const fee = price * FEE;
-    const payout = price - fee;
+function buildSequence(){
 
-    tbody.innerHTML += `
-    <tr>
-        <td>${peso(price)}</td>
-        <td>${peso(fee)}</td>
-        <td>${peso(payout)}</td>
-    </tr>
-    `;
+    const list=[];
+
+    for(let thousand=1; thousand<=5; thousand++){
+
+        let startDigit = (thousand===1) ? 5 : 1;
+
+        for(let digit=startDigit; digit<=9; digit++){
+
+            const value =
+                thousand*1000 +
+                digit*100 +
+                digit*10 +
+                digit;
+
+            if(value<=5555)
+                list.push(value);
+
+        }
+
+    }
+
+    return list;
+
 }
 
-function generateTable(){
+function generate(){
 
-    const tbody = document.querySelector("#pricingTable tbody");
+    const tbody=document.getElementById("rows");
+
     tbody.innerHTML="";
 
-    let lastPrice = START;
+    const prices=buildSequence();
 
-    for(let price=START; price<=END; price+=STEP){
+    prices.forEach(price=>{
 
-        addRow(tbody, price);
-        lastPrice = price;
+        const fee=price*FEE;
+        const payout=price-fee;
 
-    }
+        tbody.innerHTML+=`
+        <tr>
+            <td>${peso(price)}</td>
+            <td>${peso(fee)}</td>
+            <td>${peso(payout)}</td>
+        </tr>
+        `;
 
-    // Force 5555 as final row
-    if(lastPrice !== END){
-
-        addRow(tbody, END);
-
-    }
+    });
 
 }
 
-generateTable();
+generate();
 
 </script>
 
